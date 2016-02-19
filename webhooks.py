@@ -74,8 +74,8 @@ def index():
             abort(501)
 
         # HMAC requires the key to be bytes, but data is string
-        mac = hmac.new(str(secret), msg=request.data, digestmod=sha1)
-        if not hmac.compare_digest(str(mac.hexdigest()), str(signature)):
+        mac = hmac.new(secret.encode("utf-8"), msg=request.data, digestmod=sha1)
+        if not hmac.compare_digest(mac.hexdigest().encode("utf-8"), signature.encode("utf-8")):
             abort(403)
 
     # Implement ping
@@ -85,7 +85,7 @@ def index():
 
     # Gather data
     try:
-        payload = loads(request.data)
+        payload = request.get_json()
     except:
         abort(400)
 
@@ -157,8 +157,8 @@ def index():
 
         ran[basename(s)] = {
             'returncode': proc.returncode,
-            'stdout': stdout,
-            'stderr': stderr,
+            'stdout': stdout.decode("utf-8"),
+            'stderr': stderr.decode("utf-8"),
         }
 
         # Log errors if a hook failed
